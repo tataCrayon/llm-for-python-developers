@@ -6,7 +6,7 @@ authors = [
     {name = "tataCrayon",email = "you@example.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.13,<4.0"
+requires-python = ">=3.12,<4.0"
 dependencies = [
     "fastapi (==0.115.9)",
     "uvicorn (==0.34.3)",
@@ -160,7 +160,7 @@ dependencies = [
     "threadpoolctl (==3.6.0)",
     "tiktoken (==0.9.0)",
     "tokenizers (==0.21.1)",
-    "torch @ file:///F:/ProgrammingEnvironment/AI/torch-2.7.0%2Bcu128-cp313-cp313-win_amd64.whl",
+    #    "torch (==2.7.1+cu128)",
     "tqdm (==4.67.1)",
     "transformers (==4.52.4)",
     "typing-inspect (==0.9.0)",

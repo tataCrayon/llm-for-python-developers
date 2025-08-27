@@ -1,26 +1,23 @@
 import os
 from typing import List
 
-from langchain_openai import ChatOpenAI
+from app.config.logger import setup_logger
+from app.config.small_model import KeywordModelComponent
+
+logger = setup_logger(__name__)
 
 
 class KeywordExtractor:
-    def __init__(self):
+    def __init__(self, model_key: str = None):
         """
         初始化关键词提取器
+        :param model_key: 模型键名，用于从配置中获取模型参数
         """
-        # 从环境变量获取配置
-        base_url = os.getenv("LOCAL_MODEL_SERVE_BASE_URL", "http://localhost:8000/v1")
-        model_path = os.getenv("LOCAL_MODEL_SERVE_MODEL_PATH", "./Qwen2.5-1.5B-Instruct/Qwen/Qwen2___5-1___5B-Instruct")
-
-        self.llm = ChatOpenAI(
-            base_url=base_url,
-            api_key="EMPTY",
-            model=model_path,
-            temperature=0.3,
-            max_tokens=100,
-            timeout=60,
-        )
+        # 从配置文件获取模型配置
+        if model_key:
+            self.llm = KeywordModelComponent().get(model_key)
+        else:
+            self.llm = KeywordModelComponent.get_default()
 
     def extract_keywords(self, text: str, num_keywords: int = 5) -> List[str]:
         """
@@ -30,17 +27,20 @@ class KeywordExtractor:
         :return: 关键词列表
         """
         # 读取提示词模板
-        prompt_file_path = "data/prompts/keyword_extraction_prompt.txt"
+        prompt_file_path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "prompts",
+                                        "keyword_extraction_prompt.txt")
+        prompt_file_path = os.path.abspath(prompt_file_path)
         try:
             with open(prompt_file_path, 'r', encoding='utf-8') as f:
                 prompt_template = f.read()
         except FileNotFoundError:
+            logger.error(f"提示词文件 {prompt_file_path} 不存在")
             # 如果文件不存在，使用默认提示词
             prompt_template = "请从以下文本中提取{num_keywords}个最重要的关键词，用逗号分隔：\n\n{text}"
 
         # 格式化提示词
         prompt = prompt_template.format(num_keywords=num_keywords, text=text)
-
+        logger.debug(f"关键词提取提示词: {prompt}")
         try:
             response = self.llm.invoke(prompt)
             keywords = response.content.strip().split(',')

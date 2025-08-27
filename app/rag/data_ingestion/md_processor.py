@@ -1,13 +1,13 @@
-import re
-
 import json
+import re
 from pathlib import Path
 from typing import List
+
 from langchain.docstore.document import Document
-from yake import KeywordExtractor
 
 from app.config.logger import setup_logger
 from app.utils.id_util import IdUtil
+from app.utils.keyword_extractor import KeywordExtractor
 
 logger = setup_logger(__name__)
 
@@ -126,8 +126,9 @@ class MDProcessor:
                             chunks.append(sub_chunk)
                         else:
                             # 为续块添加标识
-                            chunks.append(
-                                f"## {current_title} (续{j})\n\n{sub_chunk.split('\n\n', 1)[1] if '\n\n' in sub_chunk else sub_chunk}")
+                            title_suffix = "## {title} (续{index})\n\n".format(title=current_title, index=j)
+                            content_part = sub_chunk.split('\n\n', 1)[1] if '\n\n' in sub_chunk else sub_chunk
+                            chunks.append(title_suffix + content_part)
 
                 current_chunk = []
 
@@ -317,7 +318,7 @@ class MDProcessor:
             chunks = self._merge_small_chunks(chunks)
 
             # 提取关键词（为混合检索预留）
-            kw_extractor = KeywordExtractor(top=5, stopwords=None)
+            kw_extractor = KeywordExtractor()
             documents = []
 
             for i, chunk in enumerate(chunks):
@@ -326,7 +327,7 @@ class MDProcessor:
                     logger.debug(f"跳过过小的块: {chunk[:50]}...")
                     continue
 
-                keyword_list = [kw[0] for kw in kw_extractor.extract_keywords(chunk)]
+                keyword_list = kw_extractor.extract_keywords(chunk)
                 keywords = ','.join(keyword_list)
 
                 # 获取上下文（前后文本片段）

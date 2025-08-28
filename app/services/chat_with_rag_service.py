@@ -1,12 +1,15 @@
 import time
 from typing import List, Dict
+
 from langchain_core.documents import Document
 
-from app.config.rag_prompt import RAGPromptConfig
 from app.config.logger import setup_logger
+from app.config.rag_prompt import RAGPromptConfig
 from app.enum.knowledge_level import KnowledgeLevel
+from app.schemas.chat_request import ChatRequest
 from app.services.chat_service import DeepSeekService
 from app.services.knowledge_level_analysis_service import KnowledgeLevelAnalysisService
+from app.services.query_analysis_service import QueryAnalysisService
 
 logger = setup_logger(__name__)
 
@@ -36,10 +39,12 @@ class ChatWithRAGService:
 
     def __init__(self,
                  knowledge_level_analysis_service: KnowledgeLevelAnalysisService | None = None,
+                 query_analysis_service: QueryAnalysisService | None = None,
                  llm_service: DeepSeekService | None = None,
                  prompt_config: RAGPromptConfig | None = None,
                  config: RAGConfig | None = None):
         self.knowledge_level_analysis_service = knowledge_level_analysis_service or KnowledgeLevelAnalysisService()
+        self.query_analysis_service = query_analysis_service or QueryAnalysisService()
         self.llm_service = llm_service or DeepSeekService()
         self.prompt_config = prompt_config or RAGPromptConfig()
         self.config = config or RAGConfig()
@@ -239,6 +244,28 @@ class ChatWithRAGService:
         except Exception as e:
             logger.error(f"生成回答时出现未知错误: {e}", exc_info=True)
             return self._build_error_response("抱歉，生成回答时出现错误，请稍后重试", knowledge_level)
+
+    async def adaptive_chat(self,
+                            request: ChatRequest,
+                            k: int | None = None) -> Dict:
+        """
+        自适应聊天
+        Args:
+            request: 聊天请求
+            k: 检索文档数量
+        Returns:
+            回答字典
+        """
+        route, reasoning = self.query_analysis_service.analyze_query(request.user_message)
+
+        if route == 1:
+            logger.info(f"判定需要执行RAG流程，原因:{reasoning}")
+            return await self.rag_pipeline(request.user_message, k)
+        else:
+            logger.info(f"判定为LLM直接回答，原因:{reasoning}")
+            self.llm_service.generate(request.user_message)
+
+        return await self.rag_pipeline(request.user_message, k)
 
     async def rag_pipeline(self,
                            query: str,

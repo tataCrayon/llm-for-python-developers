@@ -15,23 +15,32 @@ class LLMInvokeListener(BaseCallbackHandler):
     """
 
     def on_llm_start(self, serialized: Dict[str, Any], prompts: List[str], **kwargs):
+        logger.debug("======= LLM 调用开始 =======")
         # 提取LLM名称
-        llm_name = serialized.get('kwargs', {}).get('model', 'Unknown')
-        if llm_name == 'Unknown':
-            # 尝试从其他可能的位置获取模型名称
-            llm_name = serialized.get('id', ['Unknown'])[-1]
+        llm_name = serialized.get('kwargs', {}).get('model', '')
+        if not llm_name:
+            llm_name = serialized.get('kwargs', {}).get('model_name', '')
 
-        # 对提示词进行预处理，使其在日志中更易读
-        formatted_prompts = [prompt.replace('\n', '\n') for prompt in prompts]
+        # 如果仍然没有获取到，尝试从id数组中解析
+        if not llm_name:
+            id_array = serialized.get('id', [])
+            if id_array:
+                for item in reversed(id_array):
+                    # 排除明显的类名
+                    if item and not item.startswith('langchain') and not item.startswith('Chat'):
+                        llm_name = item
+                        break
+                # 如果没有找到合适的名称，则使用最后一个元素
+                if not llm_name:
+                    llm_name = id_array[-1]
+        if not llm_name:
+            llm_name = 'Unknown'
 
-        # 创建更美观的日志格式
-        prompt_str = json.dumps(formatted_prompts, ensure_ascii=False, indent=2)
+        prompt_str = json.dumps(prompts, ensure_ascii=False, indent=2)
         log_message = f"""
-        ======= LLM 调用开始 =======
-        模型名称: {llm_name}
-        提示词:
-        {prompt_str}
-        ========================
+模型名称: {llm_name}
+提示词:
+{prompt_str}
         """
         logger.debug(log_message)
 

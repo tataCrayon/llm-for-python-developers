@@ -1,12 +1,12 @@
-import logging
+import json
 import re
 from typing import List, Dict, Tuple
-from langchain_core.documents import Document
-import json
 
+from langchain_core.documents import Document
+
+from app.config.logger import setup_logger
 from app.config.rag_prompt import RAGPromptConfig
 from app.db.vector_store.chroma_store import ChromaVectorStore
-from app.config.logger import setup_logger
 from app.enum.knowledge_level import KnowledgeLevel
 from app.services.chat_service import DeepSeekService
 

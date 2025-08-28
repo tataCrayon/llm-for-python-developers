@@ -1,9 +1,10 @@
 import logging
-import sys
-from pathlib import Path
-from logging.handlers import RotatingFileHandler
-from dotenv import load_dotenv
 import os
+import sys
+from logging.handlers import RotatingFileHandler
+from pathlib import Path
+
+from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -20,18 +21,31 @@ except ValueError:
 # 用于存储单例日志实例
 _logger_instance = None
 
+
 def setup_logger(name: str | None = None,
-                 log_file: str = "app.log",
+                 log_file: str = None,
                  max_size: int = 1024 * 1024 * 50,  # 单个日志文件最大为 50MB
                  backup_count: int = 5) -> logging.Logger:  # 保留 5 个旧日志文件
     global _logger_instance
+
+    # 如果没有指定日志文件，则使用默认路径
+    if log_file is None:
+        # 获取项目根目录
+        project_root = Path(__file__).parent.parent.parent
+        # 创建统一的日志目录
+        log_dir = project_root / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        # 设置默认日志文件路径
+        log_file = str(log_dir / "app.log")
+    
     if _logger_instance is None:
         _logger_instance = logging.getLogger(name)
         if not _logger_instance.handlers:
             _logger_instance.setLevel(LOG_LEVEL)
 
             # 创建文件处理器，支持日志文件轮转
-            log_dir = Path(log_file).parent
+            log_path = Path(log_file)
+            log_dir = log_path.parent
             log_dir.mkdir(parents=True, exist_ok=True)
             file_handler = RotatingFileHandler(
                 log_file,

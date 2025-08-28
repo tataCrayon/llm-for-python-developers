@@ -6,6 +6,7 @@ target/
 .env
 app.log
 /data/vector_store
+/scripts/evaluation/evaluation_results_*
 
 
 ### STS ###

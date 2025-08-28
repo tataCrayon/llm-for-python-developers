@@ -40,7 +40,7 @@ def deep_seek_chat_model() -> ChatOpenAI:
         ChatOpenAI: deepseek-chat 模型实例
     """
     api_key = get_deepseek_api_key()
-    listeners = get_listeners()
+    listeners = invoke_listener()
     model = ChatOpenAI(
         openai_api_key=api_key,
         model_name=DEEP_SEEK_CHAT_MODEL_NAME,

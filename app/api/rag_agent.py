@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from app.config.logger import setup_logger
 from app.dependencies import log_time
 from app.schemas.chat_request import ChatRequest
-from app.services.chat_with_rag_service import ChatWithRAGService
+from app.services.adaptive__rag_service import ChatWithRAGService
 
 """
 RAG对外接口
@@ -22,6 +22,7 @@ router = APIRouter(
 
 chatService = ChatWithRAGService()
 
-@router.post("/chat")
+
+@router.post("/profiled")
 async def rag_chat(request: ChatRequest, k: int | None = None) -> Dict:
     return await chatService.adaptive_chat(request, k)

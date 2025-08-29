@@ -1,4 +1,5 @@
 import json
+import logging
 import re
 from typing import List, Dict, Tuple
 
@@ -9,6 +10,7 @@ from app.config.rag_prompt import RAGPromptConfig
 from app.db.vector_store.chroma_store import ChromaVectorStore
 from app.enum.knowledge_level import KnowledgeLevel
 from app.services.chat_service import DeepSeekService
+from app.services.query_optimizer_service import QueryOptimizerService
 
 logger = setup_logger(__name__)
 
@@ -21,6 +23,7 @@ class KnowledgeLevelAnalysisService:
     def __init__(self,
                  vector_store: ChromaVectorStore = None,
                  llm_service: DeepSeekService = None,
+                 optimizer_service: QueryOptimizerService | None = None,
                  prompt_config: RAGPromptConfig = None):
         """
         初始化知识水平分析服务
@@ -31,6 +34,7 @@ class KnowledgeLevelAnalysisService:
         """
         self.vector_store = vector_store or ChromaVectorStore()
         self.llm_service = llm_service or DeepSeekService()
+        self.optimizer_service = optimizer_service or QueryOptimizerService()
         self.prompt_config = prompt_config or RAGPromptConfig()
 
         # 技术术语词典
@@ -119,24 +123,50 @@ class KnowledgeLevelAnalysisService:
         Returns:
             相关文档列表
         """
-
         if not query or not query.strip():
             logger.warning("搜索查询为空")
             return []
 
-        logger.info(f"执行增强搜索，查询: '{query}', 请求数量: {k}")
+        sub_query_list = self.optimizer_service.optimize_query(query)
+
+        # 如果没有生成子查询，则使用原始查询
+        if not sub_query_list:
+            sub_query_list = [query]
+
+        logger.info(f"执行增强搜索，原始查询: '{query}', 优化后查询: {sub_query_list}, 请求数量: {k}")
 
         try:
-            # 1. 基础向量搜索，获取更多候选
+            # 1. 基础向量搜索，获取更多候选，且去重
             search_k = max(k * 3, 10)  # 确保有足够的候选
-            results = self.vector_store.search_documents(query, k=search_k)
+            all_results = []
 
-            if not results:
+            for sub_query in sub_query_list:
+                results = self.vector_store.search_documents(sub_query, k=search_k)
+                all_results.extend(results)
+                logger.info(f"子查询 '{sub_query}' 返回 {len(results)} 个文档")
+
+            if not all_results:
                 logger.warning("向量搜索未返回任何结果")
                 return []
 
+            unique_docs = {}
+            for doc in all_results:
+                # 使用文档内容作为键进行去重
+                content = doc.page_content
+                if content not in unique_docs:
+                    unique_docs[content] = doc
+                else:
+                    # 如果文档已存在，保留元数据中权重更高的
+                    existing_doc = unique_docs[content]
+                    if doc.metadata.get('weight', 0.8) > existing_doc.metadata.get('weight', 0.8):
+                        unique_docs[content] = doc
+
+            unique_results = list(unique_docs.values())
+            logger.info(f"去重后剩余 {len(unique_results)} 个唯一文档")
+
+
             # 2. 质量过滤
-            quality_results = self._filter_low_quality_docs(results)
+            quality_results = self._filter_low_quality_docs(unique_results)
 
             if not quality_results:
                 logger.warning("质量过滤后无有效文档")

@@ -12,7 +12,7 @@
 
 ➡️➡️➡️[**深入了解系统设计**](doc/system%20design/个人知识库分析系统设计.md)⬅️⬅️⬅️
 
-![image](doc/system design/用户画像Agentic RAG.png)
+![image](doc/system%20design/用户画像Agentic%20RAG.png)
 
 ## 🛠️ 技术栈概览
 

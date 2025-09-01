@@ -1,11 +1,12 @@
+import os
 from pathlib import Path
 from typing import List, Optional
-import uuid
-import os
+
 from dotenv import load_dotenv
 from langchain.docstore.document import Document
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
+from langchain_huggingface import HuggingFaceEmbeddings
+
 from app.config.embedding_model import EmbeddingModelComponent
 from app.config.logger import setup_logger
 
@@ -27,7 +28,7 @@ class ChromaVectorStore:
             self,
             persist_directory: Path = DEFAULT_VECTOR_STORE_PATH,
             collection_name: str = CHROMA_COLLECTION_NAME,
-            embeddings: Optional[HuggingFaceEmbeddings] = None
+            embeddings: HuggingFaceEmbeddings | None = None
     ):
         logger.info("Start to initialize ChromaVectorStore")
         self._persist_directory = persist_directory

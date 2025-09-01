@@ -361,5 +361,5 @@ class MDProcessor:
             logger.info(f"Processed {file_path}: {len(documents)} chunks")
             return documents
         except Exception as e:
-            logger.error(f"Error processing Markdown file {file_path}: {str(e)}")
+            logger.error(f"Error processing Markdown file {file_path}: {e}")
             return []

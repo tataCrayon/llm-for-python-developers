@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 from app.config.deepseek_llm import deep_seek_chat_model, deep_seek_r1_model
 from app.config.logger import setup_logger
 # 从我们创建的文件中导入数据集
-from evaluation_dataset import EVALUATION_DATASET
+from optimizer_prompt_evaluation_dataset import EVALUATION_DATASET
 
 logger = setup_logger(__name__)
 
@@ -106,7 +106,7 @@ def run_evaluation():
 
     # 创建保存结果的目录
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    results_dir = f"evaluation_results_{timestamp}"
+    results_dir = f"optimizer_prompt_evaluation_results_{timestamp}"
     os.makedirs(results_dir, exist_ok=True)
 
     # 定义生成子问题的链

@@ -15,9 +15,9 @@ KEYWORD_MODELS: Dict[str, Dict[str, Any]] = {
         "model_path": os.getenv("LOCAL_MODEL_SERVE_MODEL_PATH",
                                 "./Qwen2.5-1.5B-Instruct/Qwen/Qwen2___5-1___5B-Instruct"),
         "api_key": "EMPTY",
-        "temperature": 0.3,
-        "max_tokens": 100,
-        "timeout": 60,
+        "temperature": 0.1,
+        "max_tokens": 4096,
+        "timeout": 600,
     }
 }
 

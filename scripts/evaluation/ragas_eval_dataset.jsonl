@@ -1,0 +1,40 @@
+{
+  "user_input": "What are the typical application scenarios and design considerations for Message Queue (MQ) in service communication?",
+  "reference_contexts": [
+    "# 引言\n\n我们继续来了解服务通信的异步方式——消息队列（Message Queue,MQ）。\n这种方式通常应用于异步处理、流量削峰\\缓冲、数据广播、事件分发、最终一致性保障等场景，追求高性能、应用解耦。\n所以一般设计时考虑高可靠性、高可用性、高性能、可扩展性、消息有序性。还有可运维、安全性与其他丰富功能。\n\n先不了解那么多，仅了解一些消息队列的共同基础。"
+  ],
+  "reference": "Message Queue (MQ) is typically applied in scenarios such as asynchronous processing, traffic peak shaving\/buffering, data broadcasting, event distribution, and eventual consistency assurance. It pursues goals of high performance and application decoupling. In design, considerations generally include high reliability, high availability, high performance, scalability, and message ordering, as well as operational manageability, security, and other rich features.",
+  "synthesizer_name": "single_hop_specifc_query_synthesizer"
+}
+{
+  "user_input": "Can you explain what the Point-to-Point model is in message queues? I think I might have misspelled it, but I'm trying to learn more about how messaging systems work and want to understand this fundamental concept better.",
+  "reference_contexts": [
+    "## 消息队列模型\n\n消息队列（Message Queue, MQ）作为异步通信的核心组件，其最基本和最经典的使用模型就是点对点（Point-to-Point, P2P）模型和发布\/订阅（Publish\/Subscribe, Pub\/Sub）模型。"
+  ],
+  "reference": "The Point-to-Point (P2P) model is one of the most basic and classic usage models of message queues (Message Queue, MQ), which serve as core components for asynchronous communication.",
+  "synthesizer_name": "single_hop_specifc_query_synthesizer"
+}
+{
+  "user_input": "Can you explain the Point-to-Point model and how it works?",
+  "reference_contexts": [
+    "### 点对点模型（Point-to-Point,P2P）模型\n\n消息生产者（Producer）发送消息到一个特定的队列（Queue），消息消费者（Consumer）从这个队列中拉取或接收消息。\n一条消息对应一个消费者，消费者成功消费则消息从队列中移除（或标记已处理）， 未被消费消息在队列中保留直到被消费或超时。\n可以有多个消费者监听同一个队列。当消息到达时，队列通常会将消息分发给其中一个活跃的消费者（具体分发策略取决于MQ实现，如轮询、公平分发等）。即消息队列的负载均衡。\n\n应用场景：任务队列（如发送邮件、生成报表、短信通知等后台耗时任务）、确保消息被处理一次的场景。\n![](CB55655A7529455EB1F4E19757B856BDclipboard.png)"
+  ],
+  "reference": "The Point-to-Point (P2P) model involves a message producer sending a message to a specific queue, and a message consumer pulling or receiving the message from that queue. One message corresponds to one consumer, and once a message is successfully consumed, it is removed from the queue (or marked as processed). Unconsumed messages remain in the queue until they are consumed or they time out. Multiple consumers can listen to the same queue. When a message arrives, the queue typically distributes it to one of the active consumers, using a distribution strategy that depends on the MQ implementation, such as round-robin or fair distribution, enabling load balancing for the message queue.",
+  "synthesizer_name": "single_hop_specifc_query_synthesizer"
+}
+{
+  "user_input": "在发布\/订阅模型中，Exchange（交换机）的具体作用是什么，以及它是如何工作的？",
+  "reference_contexts": [
+    "### 发布\/订阅模型(Publish\/Subscribe)\n\n消息生产者（Publisher）将消息发布到一个主题（Topic）或交换机（Exchange），所有订阅了该主题的消费者（Subscriber）都会收到这条消息的副本。\n一对多关系，一条消息可以被多个订阅者接收和处理。\n主题作为中介，发布者将消息发送到主题，订阅者从主题订阅消息。发布者和订阅者互相不知道对方的存在。\n更适合事件驱动架构，当事件发生时，所有关心这个事件的系统都可以独立做出响应。\n\n应用场景：事件通知（如用户注册成功后，通知邮件服务、积分服务、营销服务等）、实时数据分发、日志聚合等。\n\n![](AA36222DB9884B2894E9E66F25498B3Fclipboard.png)"
+  ],
+  "reference": "在发布\/订阅模型中，消息生产者（Publisher）将消息发布到一个主题（Topic）或交换机（Exchange）。所有订阅了该主题的消费者（Subscriber）都会收到这条消息的副本。主题作为中介，发布者将消息发送到主题，订阅者从主题订阅消息。发布者和订阅者互相不知道对方的存在。",
+  "synthesizer_name": "single_hop_specifc_query_synthesizer"
+}
+{
+  "user_input": "As a diligent learner seeking to deepen my understanding of data serialization formats, could you please provide a comprehensive explanation of what MessagePack is and how it compares to other common formats like JSON or Protocol Buffers?",
+  "reference_contexts": [
+    "### 消息\n\nQ：消息是什么？\nA：消息队列的数据单元。生产者想要发送给消费者的业务数据+控制消息行为的元数据。\n\n**消息 = 消息体 + 消息头**\n\n消息队列系统通常不需要关心消息的数据结构，但生产者和消费者需要约定消息体的格式。\n常见消息体格式有：\n- **JSON (JavaScript Object Notation)** : 轻量级的数据交换格式，易于人阅读和编写，也易于机器解析和生成。非常流行。\n- **XML (Extensible Markup Language)**: 另一种标记语言，结构化，但相对JSON更冗长。\n- **Protocol Buffers (Protobuf)**: Google 开发的一种语言无关、平台无关、可扩展的序列化结构数据的方法，通常用于RPC系统和持久存储。性能高，体积小。\n- **Apache Avro**: 类似于Protobuf，也是一种数据序列化系统，特别适合于大数据处理场景（如Hadoop生态）。\n- **MessagePack**: 一种高效的二进制序列化格式，像JSON一样，但更快更小。\n- **纯文本 (Plain Text)**: 简单的字符串。\n- **自定义二进制格式**: 应用自定义的二进制编码。\n消息头一般是消息的元数据，用于描述消息或控制消息的行为，而不是业务数据本身。通常以键值对形式存在。\n\n生产者在发送前将业务对象序列化成上述某种格式的字节流；消费者在接收后需要将字节流反序列化成业务对象。"
+  ],
+  "reference": "MessagePack is an efficient binary serialization format. It is described as being like JSON, but faster and smaller. It is one of the common message body formats used in message queues, where producers serialize business objects into a byte stream before sending, and consumers deserialize that byte stream back into a business object upon receipt.",
+  "synthesizer_name": "single_hop_specifc_query_synthesizer"
+}

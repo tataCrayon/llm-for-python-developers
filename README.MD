@@ -1,34 +1,30 @@
-# 🚀 智能问答系统：用户画像RAG实践
+# 🚀 智能问答系统：用户画像Agentic RAG
 
 ## 🌟 项目简介
-
-本项目旨在构建一个**基于Python的简单RAG（检索增强生成）系统**，其核心创新在于引入**用户画像分析**
-，使AI能够更好地理解用户的知识水平和需求，从而提供更精准、个性化的回答。  
 
 解决了传统RAG‘千人一面’，无法提供个性化服务的核心痛点。
 
 **💡 核心理念：让AI更懂你！**
 
-**应用场景：** 针对个人知识库（如笔记），AI通过预先阅读并分析知识库内容，判断用户当前的掌握水平，进而调整回答策略，提供定制化的知识服务。
+**应用场景：** 需要用户画像分析、提供定制化的知识服务的场景。
 
 在 `doc/system design` 目录下，提供了详细的系统设计文档与开发日志。
 
 ➡️➡️➡️[**深入了解系统设计**](doc/system%20design/个人知识库分析系统设计.md)⬅️⬅️⬅️
 
-> 💡 **拓展阅读：**
-> 如果您对Java生态的大模型对话感兴趣，可以参考我们的姊妹项目 [llm-for-java-developers](https://github.com/tataCrayon/llm-for-java-developers) (
-> 基于LangChain4j框架的对话系统)。
+![img.png](用户画像Agentic RAG.png)
 
 ## 🛠️ 技术栈概览
 
-- Python版本:3.13.5
-
+- Python版本:3.11.9
 
 - **核心框架：**
 
   - **[FastAPI](https://fastapi.tiangolo.com/)**：高性能、易于使用的Python Web框架，用于构建RESTful API接口。
 
   - **[LangChain](https://www.langchain.com/)**：强大的LLM应用开发框架，简化RAG系统的构建流程。
+
+  - [**Ragas**](https://github.com/explodinggradients/Ragas):评估框架，将评估融入设计协同进行。
 
 
 - **向量数据库：**
@@ -48,6 +44,7 @@
 - **大语言模型 (LLM)：**
 
   - **DeepSeek**：本项目主要演示中使用的强大语言模型，用于生成高质量的回答。
+  - **Qwen2.5-1.5B-Instruct**:用于总结关键词。
 
 ## 🚀 效果演示
 
